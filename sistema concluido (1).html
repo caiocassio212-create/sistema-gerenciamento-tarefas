@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciador de Tarefas para Estudantes</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #f4f0e8;
+      --bg-soft: #fbf8f3;
+      --card: #fffdf8;
+      --ink: #2f2b28;
+      --muted: #70675f;
+      --line: #e8dfd2;
+      --blue: #355c7d;
+      --blue-2: #5f7fa0;
+      --gold: #c49a43;
+      --green: #2d7a51;
+      --red: #ba4b43;
+      --orange: #ba7b3d;
+      --shadow: 0 12px 28px rgba(67, 54, 37, 0.10);
+      --radius: 20px;
+    }
+
+    *{ box-sizing: border-box; }
+
+    html{
+      scroll-behavior: smooth;
+    }
+
+    body{
+      margin:0;
+      color: var(--ink);
+      font-family: "Nunito", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, #fff8da 0 10%, transparent 10.3%),
+        radial-gradient(circle at top right, #e7f1fb 0 12%, transparent 12.3%),
+        linear-gradient(180deg, #f8f4ee 0%, #f2ecdf 100%);
+      min-height:100vh;
+      padding: 28px 16px 50px;
+    }
+
+    .container{
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .hero{
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.85), rgba(255,250,240,.96)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(53,92,125,0.03) 0px,
+          rgba(53,92,125,0.03) 1px,
+          transparent 1px,
+          transparent 32px
+        );
+      border: 1px solid rgba(196,154,67,.18);
+      border-radius: 28px;
+      padding: 28px 28px 26px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      opacity:.25;
+      z-index:0;
+    }
+
+    .hero::before{
+      width:220px;
+      height:220px;
+      background:#dce8f7;
+      top:-65px;
+      right:-45px;
+    }
+
+    .hero::after{
+      width:180px;
+      height:180px;
+      background:#f8df9f;
+      bottom:-70px;
+      left:-50px;
+    }
+
+    .hero-inner{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 20px;
+      align-items:center;
+    }
+
+    .hero-text h1{
+      margin:0 0 10px;
+      font-family: "Merriweather", Georgia, serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.15;
+      color: #2c3f53;
+    }
+
+    .hero-text p{
+      margin: 0 0 18px;
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 700px;
+    }
+
+    .badges{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      background: rgba(255,255,255,.82);
+      border: 1px dashed #d9ccb7;
+      border-radius:999px;
+      font-weight:800;
+      color:#4a4742;
+      box-shadow: 0 6px 15px rgba(0,0,0,.04);
+    }
+
+    .hero-arts{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+
+    .mascot-card{
+      background: linear-gradient(180deg, #ffffff, #fff7eb);
+      border:1px solid #eadcc8;
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.05);
+      transform: rotate(-2deg);
+    }
+
+    .mascot-card:nth-child(2){
+      transform: rotate(3deg);
+      background: linear-gradient(180deg, #ffffff, #f4f9ff);
+    }
+
+    .mascot{
+      width: 150px;
+      height: 150px;
+      display:block;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+      align-items:start;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,252,247,0.98));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::after{
+      content:"";
+      position:absolute;
+      top:0;
+      right:0;
+      width:78px;
+      height:78px;
+      background:
+        radial-gradient(circle at top right, rgba(196,154,67,.13) 0 52%, transparent 54%);
+      pointer-events:none;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 8px;
+      font-family: "Merriweather", Georgia, serif;
+      font-size: 1.35rem;
+      color: #31485f;
+    }
+
+    .section-sub{
+      margin:0 0 18px;
+      color: var(--muted);
+      font-size:.96rem;
+    }
+
+    .notebook-line{
+      border-top: 2px dashed #eadcc8;
+      margin: 12px 0 18px;
+    }
+
+    form{
+      display:grid;
+      gap: 14px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    label{
+      font-weight:800;
+      font-size:.95rem;
+      color:#544c46;
+    }
+
+    input, select{
+      width:100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid #d9d2c7;
+      background: #fffefb;
+      font-size: 0.98rem;
+      color: var(--ink);
+      outline:none;
+      transition: .2s ease;
+      font-family: "Nunito", Arial, sans-serif;
+    }
+
+    input:focus, select:focus{
+      border-color:#7e9abb;
+      box-shadow: 0 0 0 4px rgba(95,127,160,.12);
+      transform: translateY(-1px);
+    }
+
+    .btn{
+      border:none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: .98rem;
+      font-weight: 900;
+      font-family: "Nunito", Arial, sans-serif;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .btn:hover{
+      transform: translateY(-2px);
+    }
+
+    .btn-primary{
+      background: linear-gradient(135deg, #355c7d, #5f7fa0);
+      color:#fff;
+      box-shadow: 0 10px 18px rgba(53,92,125,.24);
+    }
+
+    .btn-filter{
+      background:#f7f2ea;
+      color:#564c43;
+      border:1px solid #e8ddd0;
+    }
+
+    .btn-filter.active{
+      background: linear-gradient(135deg, #f2d9a0, #f6e8c6);
+      color: #5e4a17;
+      border-color:#e4c88b;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 0 18px;
+    }
+
+    .stat{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, #fffefa, #fbf6ec);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      min-height: 100px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .stat::before{
+      content:"";
+      position:absolute;
+      right:-12px;
+      top:-14px;
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      background: rgba(53,92,125,.08);
+    }
+
+    .stat h3{
+      margin:0;
+      font-size:.95rem;
+      color:#5f554d;
+      font-weight:800;
+    }
+
+    .stat .icon{
+      font-size: 1.35rem;
+      margin-bottom:6px;
+      display:inline-block;
+    }
+
+    .stat .num{
+      display:block;
+      margin-top:8px;
+      font-size: 1.9rem;
+      line-height:1;
+      font-weight:900;
+      color:#2e4358;
+    }
+
+    .filters{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin: 0 0 18px;
+    }
+
+    .tasks{
+      display:grid;
+      gap: 14px;
+    }
+
+    .task{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,250,242,1));
+      border: 1px solid #eadfce;
+      border-left: 8px solid var(--blue);
+      border-radius: 18px;
+      padding: 16px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items:center;
+      box-shadow: 0 10px 18px rgba(68,55,37,.05);
+    }
+
+    .task.done{
+      opacity: .85;
+      border-left-color: var(--green);
+      background: linear-gradient(180deg, #fbfffc, #f1fbf4);
+    }
+
+    .task-head{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+
+    .task-title{
+      margin:0;
+      font-family: "Merriweather", Georgia, serif;
+      font-size: 1.15rem;
+      color: #2d4358;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding: 6px 10px;
+      font-size:.82rem;
+      font-weight:800;
+      border:1px solid transparent;
+    }
+
+    .p-alta{
+      color:#7a241d;
+      background:#fce4e1;
+      border-color:#f3c7c2;
+    }
+
+    .p-media{
+      color:#7d4f12;
+      background:#fff0dc;
+      border-color:#f5d8ac;
+    }
+
+    .p-baixa{
+      color:#21593d;
+      background:#def3e8;
+      border-color:#b9e2ca;
+    }
+
+    .task-meta{
+      display:grid;
+      gap:5px;
+      color:#5b534c;
+      font-size:.94rem;
+    }
+
+    .task-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+
+    .btn-success{
+      background: linear-gradient(135deg, #2d7a51, #4b9b6d);
+      color:#fff;
+    }
+
+    .btn-danger{
+      background: linear-gradient(135deg, #ba4b43, #d36b61);
+      color:#fff;
+    }
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:4px;
+      font-weight:800;
+    }
+
+    .status .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      display:inline-block;
+    }
+
+    .dot.pending{ background: var(--orange); }
+    .dot.done{ background: var(--green); }
+
+    .empty{
+      border: 2px dashed #e5d8c5;
+      background: linear-gradient(180deg, #fffdf8, #fff8ef);
+      border-radius: 18px;
+      padding: 28px 18px;
+      text-align:center;
+      color:#6a6057;
+    }
+
+    .empty svg{
+      width:110px;
+      height:110px;
+      margin-bottom:10px;
+    }
+
+    .tips{
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #f6fbff;
+      border:1px dashed #cddfee;
+      color:#45607a;
+      font-size:.94rem;
+    }
+
+    .footer-note{
+      margin-top: 20px;
+      text-align:center;
+      color:#776f68;
+      font-size:.92rem;
+    }
+
+    .doodle{
+      font-size:1rem;
+      opacity:.75;
+      margin-left:5px;
+    }
+
+    @media (max-width: 980px){
+      .hero-inner,
+      .layout{
+        grid-template-columns: 1fr;
+      }
+
+      .hero-arts{
+        justify-content:flex-start;
+      }
+    }
+
+    @media (max-width: 700px){
+      .stats{
+        grid-template-columns: 1fr;
+      }
+
+      .task{
+        grid-template-columns: 1fr;
+      }
+
+      .task-actions{
+        justify-content:flex-start;
+      }
+
+      .hero{
+        padding: 22px 18px;
+      }
+
+      .card{
+        padding: 18px;
+      }
+
+      .mascot{
+        width: 120px;
+        height:120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <h1>📚 Sistema de Gerenciamento de Tarefas para Estudantes</h1>
+          <p>
+            Organize suas atividades acadêmicas com um painel simples, bonito e funcional.
+            Cadastre tarefas, acompanhe prazos, defina prioridades e mantenha sua rotina em ordem.
+          </p>
+
+          <div class="badges">
+            <span class="badge">🎓 Visual acadêmico</span>
+            <span class="badge">📝 Organização inteligente</span>
+            <span class="badge">💾 Salvamento automático</span>
+          </div>
+        </div>
+
+        <div class="hero-arts">
+          <div class="mascot-card" title="Livro caricatura">
+            <svg class="mascot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="35" y="45" width="130" height="95" rx="20" fill="#79a7d3"/>
+              <rect x="46" y="55" width="108" height="75" rx="14" fill="#ffffff"/>
+              <rect x="98" y="45" width="8" height="95" fill="#4b6f91"/>
+              <circle cx="78" cy="87" r="6" fill="#2f2b28"/>
+              <circle cx="122" cy="87" r="6" fill="#2f2b28"/>
+              <circle cx="76" cy="85" r="2" fill="#ffffff"/>
+              <circle cx="120" cy="85" r="2" fill="#ffffff"/>
+              <path d="M78 107 Q100 122 122 107" fill="none" stroke="#d06a5c" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="62" cy="102" r="4" fill="#f3c3b9"/>
+              <circle cx="138" cy="102" r="4" fill="#f3c3b9"/>
+              <path d="M55 38 L100 18 L145 38" fill="#2f4359"/>
+              <rect x="80" y="12" width="40" height="12" rx="4" fill="#2f4359"/>
+              <line x1="72" y1="152" x2="60" y2="176" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+              <line x1="128" y1="152" x2="140" y2="176" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+              <line x1="64" y1="144" x2="42" y2="126" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+              <line x1="136" y1="144" x2="158" y2="126" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+              <circle cx="42" cy="126" r="7" fill="#f4d289"/>
+              <circle cx="158" cy="126" r="7" fill="#f4d289"/>
+            </svg>
+          </div>
+
+          <div class="mascot-card" title="Lápis caricatura">
+            <svg class="mascot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g transform="rotate(-12 100 100)">
+                <rect x="78" y="24" width="44" height="110" rx="16" fill="#f4d289"/>
+                <rect x="78" y="24" width="44" height="24" rx="14" fill="#ef9ba4"/>
+                <rect x="78" y="48" width="44" height="10" fill="#d58d95"/>
+                <polygon points="78,134 122,134 112,164 88,164" fill="#d9b487"/>
+                <polygon points="88,164 112,164 100,186" fill="#2f2b28"/>
+                <circle cx="90" cy="88" r="6" fill="#2f2b28"/>
+                <circle cx="110" cy="88" r="6" fill="#2f2b28"/>
+                <circle cx="88" cy="86" r="2" fill="#ffffff"/>
+                <circle cx="108" cy="86" r="2" fill="#ffffff"/>
+                <path d="M89 108 Q100 118 111 108" fill="none" stroke="#c86358" stroke-width="5" stroke-linecap="round"/>
+                <line x1="86" y1="128" x2="62" y2="146" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+                <line x1="114" y1="128" x2="138" y2="146" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+                <line x1="92" y1="136" x2="82" y2="160" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+                <line x1="108" y1="136" x2="118" y2="160" stroke="#2f4359" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="62" cy="146" r="7" fill="#d8ebfb"/>
+                <circle cx="138" cy="146" r="7" fill="#d8ebfb"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <aside class="card">
+        <h2 class="section-title">✍️ Nova tarefa <span class="doodle">📎</span></h2>
+        <p class="section-sub">Preencha os campos para adicionar uma atividade ao seu painel.</p>
+        <div class="notebook-line"></div>
+
+        <form id="formTarefa">
+          <div class="field">
+            <label for="titulo">Nome da tarefa</label>
+            <input id="titulo" type="text" placeholder="Ex.: Estudar algoritmo de ordenação" required>
+          </div>
+
+          <div class="field">
+            <label for="disciplina">Disciplina</label>
+            <input id="disciplina" type="text" placeholder="Ex.: Programação Web" required>
+          </div>
+
+          <div class="field">
+            <label for="data">Prazo</label>
+            <input id="data" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="prioridade">Prioridade</label>
+            <select id="prioridade" required>
+              <option value="">Selecione</option>
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+              <option value="Baixa">Baixa</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" type="submit">+ Adicionar tarefa</button>
+        </form>
+
+        <div class="tips">
+          <strong>💡 Dica:</strong> use prioridade <strong>Alta</strong> para tarefas com prazo curto,
+          prova, entrega de trabalho ou atividade com maior peso.
+        </div>
+      </aside>
+
+      <main class="card">
+        <h2 class="section-title">🗂️ Minhas tarefas <span class="doodle">⭐</span></h2>
+        <p class="section-sub">Acompanhe suas atividades cadastradas e filtre por status.</p>
+
+        <div class="stats">
+          <div class="stat">
+            <span class="icon">📚</span>
+            <h3>Total</h3>
+            <span class="num" id="totalCount">0</span>
+          </div>
+
+          <div class="stat">
+            <span class="icon">⏳</span>
+            <h3>Pendentes</h3>
+            <span class="num" id="pendingCount">0</span>
+          </div>
+
+          <div class="stat">
+            <span class="icon">✅</span>
+            <h3>Concluídas</h3>
+            <span class="num" id="doneCount">0</span>
+          </div>
+        </div>
+
+        <div class="filters">
+          <button class="btn btn-filter active" data-filter="todas">Todas</button>
+          <button class="btn btn-filter" data-filter="pendentes">Pendentes</button>
+          <button class="btn btn-filter" data-filter="concluidas">Concluídas</button>
+        </div>
+
+        <div id="listaTarefas" class="tasks"></div>
+
+        <p class="footer-note">
+          Desenvolvido para estudantes • Visual acadêmico com elementos caricatos 🎓
+        </p>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    let tarefas = JSON.parse(localStorage.getItem("tarefasEstudante")) || [];
+    let filtroAtual = "todas";
+
+    const form = document.getElementById("formTarefa");
+    const lista = document.getElementById("listaTarefas");
+    const totalCount = document.getElementById("totalCount");
+    const pendingCount = document.getElementById("pendingCount");
+    const doneCount = document.getElementById("doneCount");
+    const filterButtons = document.querySelectorAll("[data-filter]");
+
+    form.addEventListener("submit", function(evento) {
+      evento.preventDefault();
+
+      const tarefa = {
+        id: Date.now(),
+        titulo: document.getElementById("titulo").value.trim(),
+        disciplina: document.getElementById("disciplina").value.trim(),
+        data: document.getElementById("data").value,
+        prioridade: document.getElementById("prioridade").value,
+        concluida: false
+      };
+
+      tarefas.push(tarefa);
+      salvar();
+      form.reset();
+      mostrarTarefas();
+    });
+
+    filterButtons.forEach(botao => {
+      botao.addEventListener("click", () => {
+        filtroAtual = botao.dataset.filter;
+        atualizarBotoesFiltro();
+        mostrarTarefas();
+      });
+    });
+
+    function salvar() {
+      localStorage.setItem("tarefasEstudante", JSON.stringify(tarefas));
+    }
+
+    function alternarStatus(id) {
+      const tarefa = tarefas.find(t => t.id === id);
+      if (!tarefa) return;
+      tarefa.concluida = !tarefa.concluida;
+      salvar();
+      mostrarTarefas();
+    }
+
+    function excluirTarefa(id) {
+      tarefas = tarefas.filter(t => t.id !== id);
+      salvar();
+      mostrarTarefas();
+    }
+
+    function atualizarBotoesFiltro() {
+      filterButtons.forEach(botao => {
+        botao.classList.toggle("active", botao.dataset.filter === filtroAtual);
+      });
+    }
+
+    function prioridadeClass(prioridade) {
+      if (prioridade === "Alta") return "p-alta";
+      if (prioridade === "Média") return "p-media";
+      return "p-baixa";
+    }
+
+    function formatarData(data) {
+      if (!data) return "-";
+      const partes = data.split("-");
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function ordenarTarefas(listaBase) {
+      return [...listaBase].sort((a, b) => {
+        if (a.concluida !== b.concluida) return a.concluida - b.concluida;
+        return new Date(a.data) - new Date(b.data);
+      });
+    }
+
+    function atualizarEstatisticas() {
+      totalCount.textContent = tarefas.length;
+      pendingCount.textContent = tarefas.filter(t => !t.concluida).length;
+      doneCount.textContent = tarefas.filter(t => t.concluida).length;
+    }
+
+    function mostrarVazio() {
+      lista.innerHTML = `
+        <div class="empty">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="42" y="36" width="116" height="128" rx="20" fill="#ffffff" stroke="#dcccb5" stroke-width="4"/>
+            <rect x="56" y="58" width="88" height="10" rx="5" fill="#d7e6f5"/>
+            <rect x="56" y="82" width="78" height="10" rx="5" fill="#ecd8b2"/>
+            <rect x="56" y="106" width="70" height="10" rx="5" fill="#d7e6f5"/>
+            <circle cx="132" cy="128" r="20" fill="#f4d289"/>
+            <path d="M124 128 L130 134 L142 120" fill="none" stroke="#2d7a51" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="78" cy="142" r="4" fill="#b79e72"/>
+            <circle cx="98" cy="142" r="4" fill="#b79e72"/>
+            <path d="M80 154 Q88 160 96 154" fill="none" stroke="#ba7b3d" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <h3 style="margin:0 0 8px; font-family:'Merriweather',Georgia,serif; color:#3d5670;">Nenhuma tarefa encontrada</h3>
+          <p style="margin:0;">Adicione uma nova tarefa ou altere o filtro selecionado.</p>
+        </div>
+      `;
+    }
+
+    function mostrarTarefas() {
+      atualizarEstatisticas();
+      lista.innerHTML = "";
+
+      let tarefasFiltradas = tarefas;
+
+      if (filtroAtual === "pendentes") {
+        tarefasFiltradas = tarefas.filter(t => !t.concluida);
+      } else if (filtroAtual === "concluidas") {
+        tarefasFiltradas = tarefas.filter(t => t.concluida);
+      }
+
+      tarefasFiltradas = ordenarTarefas(tarefasFiltradas);
+
+      if (tarefasFiltradas.length === 0) {
+        mostrarVazio();
+        return;
+      }
+
+      tarefasFiltradas.forEach(tarefa => {
+        const div = document.createElement("div");
+        div.className = `task ${tarefa.concluida ? "done" : ""}`;
+
+        const statusTexto = tarefa.concluida ? "Concluída" : "Pendente";
+        const statusDot = tarefa.concluida ? "done" : "pending";
+
+        div.innerHTML = `
+          <div>
+            <div class="task-head">
+              <h3 class="task-title">${tarefa.titulo}</h3>
+              <span class="pill ${prioridadeClass(tarefa.prioridade)}">
+                ⚠️ ${tarefa.prioridade}
+              </span>
+            </div>
+
+            <div class="task-meta">
+              <span>📖 <strong>Disciplina:</strong> ${tarefa.disciplina}</span>
+              <span>📅 <strong>Prazo:</strong> ${formatarData(tarefa.data)}</span>
+              <span class="status">
+                <span class="dot ${statusDot}"></span>
+                ${statusTexto}
+              </span>
+            </div>
+          </div>
+
+          <div class="task-actions">
+            <button class="btn btn-success" onclick="alternarStatus(${tarefa.id})">
+              ${tarefa.concluida ? "Reabrir" : "Concluir"}
+            </button>
+            <button class="btn btn-danger" onclick="excluirTarefa(${tarefa.id})">
+              Excluir
+            </button>
+          </div>
+        `;
+
+        lista.appendChild(div);
+      });
+    }
+
+    atualizarBotoesFiltro();
+    mostrarTarefas();
+  </script>
+</body>
+</html>
